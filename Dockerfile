@@ -1,16 +1,18 @@
 # =============================================================================
 # Hermes Agent — Railway Deployment Image
-# Extends the official image with Chromium for browser automation tasks.
+# Extends the official image with Chromium and GitHub CLI for automation tasks.
 # =============================================================================
 FROM nousresearch/hermes-agent:latest
 
-# Install Chromium and fonts for browser automation & visual verification
+# Install Chromium, fonts, and GitHub CLI (gh)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         chromium \
         chromium-sandbox \
         fonts-liberation \
         fonts-noto-color-emoji \
         ca-certificates \
+        git \
+        gh \
     && rm -rf /var/lib/apt/lists/*
 
 # Tell Hermes / Chromium to run headless in container

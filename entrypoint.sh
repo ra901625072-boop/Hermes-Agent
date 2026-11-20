@@ -29,6 +29,37 @@ if [ -f "${SEED_CONFIG}" ]; then
     chmod 666 "${LIVE_CONFIG}" 2>/dev/null || true
 fi
 
+# Configure GitHub authentication for Hermes tools and gh CLI
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    echo "  Configuring GitHub token in ${DATA_DIR}/.env and gh CLI"
+    touch "${DATA_DIR}/.env"
+    grep -v "^GITHUB_TOKEN=" "${DATA_DIR}/.env" | grep -v "^GH_TOKEN=" > "${DATA_DIR}/.env.tmp" 2>/dev/null || true
+    echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> "${DATA_DIR}/.env.tmp"
+    echo "GH_TOKEN=${GITHUB_TOKEN}" >> "${DATA_DIR}/.env.tmp"
+    mv "${DATA_DIR}/.env.tmp" "${DATA_DIR}/.env"
+    chmod 666 "${DATA_DIR}/.env" 2>/dev/null || true
+
+    # Export for current shell and system profile
+    export GITHUB_TOKEN="${GITHUB_TOKEN}"
+    export GH_TOKEN="${GITHUB_TOKEN}"
+    mkdir -p /etc/profile.d
+    echo "export GITHUB_TOKEN=\"${GITHUB_TOKEN}\"" > /etc/profile.d/github.sh
+    echo "export GH_TOKEN=\"${GITHUB_TOKEN}\"" >> /etc/profile.d/github.sh
+    chmod 644 /etc/profile.d/github.sh 2>/dev/null || true
+
+    # Configure gh CLI config for root, hermes user, and volume
+    mkdir -p /root/.config/gh "${DATA_DIR}/.config/gh" /home/hermes/.config/gh
+    cat <<EOF > /root/.config/gh/hosts.yml
+github.com:
+    oauth_token: ${GITHUB_TOKEN}
+    user: ra901625072-boop
+    git_protocol: https
+EOF
+    cp /root/.config/gh/hosts.yml "${DATA_DIR}/.config/gh/hosts.yml" 2>/dev/null || true
+    cp /root/.config/gh/hosts.yml /home/hermes/.config/gh/hosts.yml 2>/dev/null || true
+    chmod -R 777 "${DATA_DIR}/.config" /home/hermes/.config 2>/dev/null || true
+fi
+
 echo "  Persistent dirs OK ✓"
 echo ""
 
