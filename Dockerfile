@@ -27,9 +27,8 @@ ENV PLAYWRIGHT_CHROMIUM_SANDBOX=0
 ENV TZ=Asia/Kolkata
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 
-# --- Seed config and starter skills ---
+# --- Seed config (copied to volume on first boot by entrypoint.sh) ---
 COPY seed-config.yaml /opt/hermes/seed-config.yaml
-COPY skills/ /opt/hermes/starter-skills/
 
 # --- Entrypoint ---
 COPY entrypoint.sh /opt/hermes/entrypoint.sh

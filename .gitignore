@@ -13,9 +13,8 @@
 /data/
 profiles/
 memory/
+skills/
 cron/
-!skills/
-!skills/**
 *.sqlite
 *.sqlite-journal
 *.db
