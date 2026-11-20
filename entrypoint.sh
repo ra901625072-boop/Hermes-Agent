@@ -20,15 +20,13 @@ done
 # Ensure the entire mounted volume is world-writable regardless of container UID
 chmod -R 777 "${DATA_DIR}" 2>/dev/null || true
 
-# Seed or update config.yaml with Gemini model provider
+# Seed or update config.yaml with Gemini 3.8 Flash model provider
 SEED_CONFIG="/opt/hermes/seed-config.yaml"
 LIVE_CONFIG="${DATA_DIR}/config.yaml"
 if [ -f "${SEED_CONFIG}" ]; then
-    if [ ! -f "${LIVE_CONFIG}" ] || ! grep -q "provider: gemini" "${LIVE_CONFIG}" 2>/dev/null; then
-        echo "  Applying Gemini provider configuration to ${LIVE_CONFIG}"
-        cp "${SEED_CONFIG}" "${LIVE_CONFIG}"
-        chmod 666 "${LIVE_CONFIG}" 2>/dev/null || true
-    fi
+    echo "  Applying Gemini 3.8 Flash provider configuration to ${LIVE_CONFIG}"
+    cp "${SEED_CONFIG}" "${LIVE_CONFIG}"
+    chmod 666 "${LIVE_CONFIG}" 2>/dev/null || true
 fi
 
 echo "  Persistent dirs OK ✓"

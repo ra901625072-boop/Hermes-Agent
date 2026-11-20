@@ -9,10 +9,10 @@ timezone: Asia/Kolkata
 # --- Model configuration (Google Gemini) ---
 model:
   provider: gemini
-  default: gemini-2.5-flash
+  default: gemini-3.8-flash
   base_url: https://generativelanguage.googleapis.com/v1beta
 
 # --- Cron scheduler defaults ---
 cron:
-  model: gemini-2.5-flash
+  model: gemini-3.8-flash
   preflight: false
