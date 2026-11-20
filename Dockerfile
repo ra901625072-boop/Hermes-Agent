@@ -15,9 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Tell Hermes / Chromium to run headless in container
+# Tell Hermes / Chromium to run headless in container with no sandbox
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV AGENT_BROWSER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+ENV AGENT_BROWSER_CHROME_FLAGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+ENV CHROME_FLAGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+ENV PLAYWRIGHT_CHROMIUM_SANDBOX=0
 
 # --- Timezone (for cron scheduling) ---
 ENV TZ=Asia/Kolkata

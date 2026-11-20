@@ -29,6 +29,39 @@ if [ -f "${SEED_CONFIG}" ]; then
     chmod 666 "${LIVE_CONFIG}" 2>/dev/null || true
 fi
 
+# Ensure Chromium runs with --no-sandbox in container
+echo "  Configuring Chromium sandbox bypass wrapper..."
+if [ -d "/opt/hermes/tools/chromium-1248/chrome-linux64" ]; then
+    if [ ! -f "/opt/hermes/tools/chromium-1248/chrome-linux64/chrome.real" ]; then
+        mv "/opt/hermes/tools/chromium-1248/chrome-linux64/chrome" "/opt/hermes/tools/chromium-1248/chrome-linux64/chrome.real" 2>/dev/null || true
+        cat <<'WRAPPER' > "/opt/hermes/tools/chromium-1248/chrome-linux64/chrome"
+#!/bin/sh
+exec /usr/bin/chromium --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu "$@"
+WRAPPER
+        chmod +x "/opt/hermes/tools/chromium-1248/chrome-linux64/chrome"
+    fi
+fi
+
+if [ -f "/usr/bin/chromium" ] && [ ! -f "/usr/bin/chromium.real" ]; then
+    mv /usr/bin/chromium /usr/bin/chromium.real
+    cat <<'WRAPPER' > /usr/bin/chromium
+#!/bin/sh
+exec /usr/bin/chromium.real --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu "$@"
+WRAPPER
+    chmod +x /usr/bin/chromium
+fi
+
+mkdir -p /etc/profile.d
+cat <<'EOF' > /etc/profile.d/browser.sh
+export AGENT_BROWSER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+export AGENT_BROWSER_CHROME_FLAGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+export CHROME_FLAGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
+export PLAYWRIGHT_CHROMIUM_SANDBOX=0
+export CHROME_BIN=/usr/bin/chromium
+export CHROMIUM_PATH=/usr/bin/chromium
+EOF
+chmod 644 /etc/profile.d/browser.sh 2>/dev/null || true
+
 # Configure Groq authentication for Hermes
 if [ -n "${GROQ_API_KEY:-}" ]; then
     echo "  Configuring Groq API key in ${DATA_DIR}/.env"
