@@ -29,6 +29,13 @@ if [ -f "${SEED_CONFIG}" ]; then
     chmod 666 "${LIVE_CONFIG}" 2>/dev/null || true
 fi
 
+# Seed starter skills into persistent volume
+if [ -d "/opt/hermes/starter-skills" ]; then
+    echo "  Seeding starter skills into ${DATA_DIR}/skills"
+    cp -rn /opt/hermes/starter-skills/* "${DATA_DIR}/skills/" 2>/dev/null || true
+    chmod -R 777 "${DATA_DIR}/skills" 2>/dev/null || true
+fi
+
 # Ensure Chromium runs with --no-sandbox in container
 echo "  Configuring Chromium sandbox bypass wrapper..."
 if [ -d "/opt/hermes/tools/chromium-1248/chrome-linux64" ]; then
