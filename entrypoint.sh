@@ -20,13 +20,40 @@ done
 # Ensure the entire mounted volume is world-writable regardless of container UID
 chmod -R 777 "${DATA_DIR}" 2>/dev/null || true
 
-# Seed or update config.yaml with Gemini 3 Flash model provider
+# Seed or update config.yaml with Groq primary and Gemini fallback
 SEED_CONFIG="/opt/hermes/seed-config.yaml"
 LIVE_CONFIG="${DATA_DIR}/config.yaml"
 if [ -f "${SEED_CONFIG}" ]; then
-    echo "  Applying Gemini 3 Flash provider configuration to ${LIVE_CONFIG}"
+    echo "  Applying Groq (primary) and Gemini (fallback) configuration to ${LIVE_CONFIG}"
     cp "${SEED_CONFIG}" "${LIVE_CONFIG}"
     chmod 666 "${LIVE_CONFIG}" 2>/dev/null || true
+fi
+
+# Configure Groq authentication for Hermes
+if [ -n "${GROQ_API_KEY:-}" ]; then
+    echo "  Configuring Groq API key in ${DATA_DIR}/.env"
+    touch "${DATA_DIR}/.env"
+    grep -v "^GROQ_API_KEY=" "${DATA_DIR}/.env" > "${DATA_DIR}/.env.tmp" 2>/dev/null || true
+    echo "GROQ_API_KEY=${GROQ_API_KEY}" >> "${DATA_DIR}/.env.tmp"
+    mv "${DATA_DIR}/.env.tmp" "${DATA_DIR}/.env"
+    chmod 666 "${DATA_DIR}/.env" 2>/dev/null || true
+    export GROQ_API_KEY="${GROQ_API_KEY}"
+    mkdir -p /etc/profile.d
+    echo "export GROQ_API_KEY=\"${GROQ_API_KEY}\"" > /etc/profile.d/groq.sh
+    chmod 644 /etc/profile.d/groq.sh 2>/dev/null || true
+fi
+
+# Configure Google Gemini authentication in ${DATA_DIR}/.env
+if [ -n "${GOOGLE_API_KEY:-}" ]; then
+    echo "  Configuring Google API key in ${DATA_DIR}/.env"
+    touch "${DATA_DIR}/.env"
+    grep -v "^GOOGLE_API_KEY=" "${DATA_DIR}/.env" | grep -v "^GEMINI_API_KEY=" > "${DATA_DIR}/.env.tmp" 2>/dev/null || true
+    echo "GOOGLE_API_KEY=${GOOGLE_API_KEY}" >> "${DATA_DIR}/.env.tmp"
+    echo "GEMINI_API_KEY=${GOOGLE_API_KEY}" >> "${DATA_DIR}/.env.tmp"
+    mv "${DATA_DIR}/.env.tmp" "${DATA_DIR}/.env"
+    chmod 666 "${DATA_DIR}/.env" 2>/dev/null || true
+    export GOOGLE_API_KEY="${GOOGLE_API_KEY}"
+    export GEMINI_API_KEY="${GOOGLE_API_KEY}"
 fi
 
 # Configure GitHub authentication for Hermes tools and gh CLI
