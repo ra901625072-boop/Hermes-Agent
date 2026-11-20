@@ -1,0 +1,27 @@
+# =============================================================================
+# Hermes Agent — Seed Configuration
+# Copied to /opt/data/config.yaml on first boot (if none exists on the volume).
+# Edit the LIVE copy on the volume via Telegram: /config or hermes config set
+# =============================================================================
+
+# --- Timezone for cron scheduling ---
+timezone: Asia/Kolkata
+
+# --- Cron scheduler defaults ---
+cron:
+  # Use a cost-effective model for background scheduled tasks
+  # (inherits main model if not set)
+  # model: "google/gemini-2.5-flash"
+  preflight: true
+
+# --- GitHub MCP Server (alternative to plain GITHUB_TOKEN env var) ---
+# Uncomment if you prefer the MCP approach over the built-in GitHub skill.
+# Requires GITHUB_TOKEN to be set in the environment.
+# mcp_servers:
+#   github:
+#     command: npx
+#     args:
+#       - -y
+#       - "@modelcontextprotocol/server-github"
+#     env:
+#       GITHUB_TOKEN: "${GITHUB_TOKEN}"
