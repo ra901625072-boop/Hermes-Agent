@@ -6,24 +6,18 @@
 # --- Timezone for cron scheduling ---
 timezone: Asia/Kolkata
 
-# --- Model configuration (Groq primary, Gemini fallback) ---
+# --- Model configuration (Google Gemini) ---
 model:
-  default: openai/gpt-oss-120b
-  provider: groq
+  provider: gemini
+  default: gemini-3-flash-preview
+  base_url: https://generativelanguage.googleapis.com/v1beta
 
-providers:
-  groq:
-    name: groq
-    base_url: https://api.groq.com/openai/v1
-    api_key: ${GROQ_API_KEY}
-    default_model: openai/gpt-oss-120b
-    models:
-      openai/gpt-oss-120b: {}
-
+# --- Fallback Providers ---
 fallback_providers:
   - provider: gemini
-    model: gemini-3-flash-preview
+    model: gemini-3.1-flash-lite
 
+# --- Auxiliary Tasks ---
 auxiliary:
   vision:
     provider: gemini
@@ -31,5 +25,5 @@ auxiliary:
 
 # --- Cron scheduler defaults ---
 cron:
-  model: openai/gpt-oss-120b
+  model: gemini-3-flash-preview
   preflight: false
