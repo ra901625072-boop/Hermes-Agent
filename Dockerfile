@@ -27,10 +27,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# --- Ensure Hermes venv is in PATH ---
+ENV PATH="/opt/hermes/.venv/bin:/opt/hermes/bin:${PATH}"
+
 # Install Playwright Python package + Chromium binary only
-RUN pip install --no-cache-dir playwright==1.49.1 \
-    && playwright install chromium \
-    && playwright install-deps chromium
+RUN if command -v uv >/dev/null 2>&1; then \
+        uv pip install --python /opt/hermes/.venv/bin/python playwright==1.49.1; \
+    elif [ -f /opt/hermes/.venv/bin/pip ]; then \
+        /opt/hermes/.venv/bin/pip install --no-cache-dir playwright==1.49.1; \
+    else \
+        python3 -m pip install --no-cache-dir --break-system-packages playwright==1.49.1; \
+    fi \
+    && /opt/hermes/.venv/bin/playwright install chromium \
+    && /opt/hermes/.venv/bin/playwright install-deps chromium
 
 # --- Timezone (for cron scheduling) ---
 ENV TZ=Asia/Kolkata
